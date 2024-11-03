@@ -1,11 +1,12 @@
 #include <stdio.h>
-#include <string.h> //para usar as comparações de strcmp
+#include <stdlib.h> //para usar malloc
+#include <string.h>
 #include <unistd.h> //para usar a funcao sleep e melhorar a experiência do usuário
 
 //ESTRUTURAS DE DADOS
 typedef struct personaldata{        //struct que irá armazenar os dados do usuário e também irá estruturar a fila que organizará os usuários
     char *name;                     //usará ponteiro para alocar memória dinãmicamente para a string          
-    char * birthday;                //usará ponteiro para alocar memória dinãmicamente para a string
+    char *birthday;                //usará ponteiro para alocar memória dinãmicamente para a string
     int phone;                      //apenas uma variável inteira já é suficiente para armazenar os dados de telefone
     char *email;                    //usará ponteiro para alocar memória dinãmicamente para a string
     char *cpf;                      //é melhor usar um ponteiro para uma string que apenas uma variável inteira pois isso poderia causar problemas com 0 a esquerda
@@ -40,3 +41,93 @@ int main(){
 
 return 0;
 }
+
+//função que cria um novo usuário
+personaldata *createuser(char *name, char *birthday, int phone, char *email, char *cpf, char *userID, char *password, float income, float balance) {
+    //aloca memória para um novo usuário
+    personaldata *newuser = (personaldata *)malloc(sizeof(personaldata)); 
+    if (newuser == NULL) { //confere se o 
+        return NULL;
+    }
+
+    //memória e copia o nome
+    newuser->name = (char *)malloc(strlen(name) + 1);
+    if (newuser->name == NULL) //se o nome inserido for nulo libera a memória alocada 
+    {
+        free(newuser);
+        return NULL;
+    }
+    strcpy(newuser->name, name);
+
+    //aloca e copia a data de aniversário
+    newuser->birthday = (char *)malloc(strlen(birthday) + 1); 
+    if (newuser->birthday == NULL) //se a data de aniversário inserida for nula, há liberação de memória alocada anteriormente
+    {
+        free(newuser->name);
+        free(newuser);
+        return NULL;
+    }
+    strcpy(newuser->birthday, birthday);  //se não for nula, ele copia a data de aniversário 
+
+    //aloca e copia email
+    newuser->email = (char *)malloc(strlen(email) + 1);
+    if (newuser->email == NULL) //se o email inserido for nulo, liberamos a memória dos dados inseridos anteriormente  
+    {
+        free(newuser->birthday);
+        free(newuser->name);
+        free(newuser);
+        return NULL;
+    }
+    strcpy(newuser->email, email);
+
+    //aloca e copia CPF
+    newuser->cpf = (char *)malloc(strlen(cpf) + 1);
+    if (newuser->cpf == NULL) //se o cpf inserido for nulo, há liberação de memória dos daddos alocados anteriormente 
+    {
+        free(newuser->email);
+        free(newuser->birthday);
+        free(newuser->name);
+        free(newuser);
+        return NULL;
+    }
+    strcpy(newuser->cpf, cpf);
+
+    //aloca e copia o id de usuário
+    newuser->userID = (char *)malloc(strlen(userID) + 1);
+    if (newuser->userID == NULL)  //se o id se usuário for nulo, há liberação da memória anteriormente alocada 
+    {
+        free(newuser->cpf);
+        free(newuser->email);
+        free(newuser->birthday);
+        free(newuser->name);
+        free(newuser);
+        return NULL;
+    }
+    strcpy(newuser->userID, userID);
+
+    //aloca e copia a senha
+    newuser->password = (char *)malloc(strlen(password) + 1);
+    if (newuser->password == NULL)  //se a senha inserida for nula, há liberação da memória anteriormente alocada 
+    {
+        free(newuser->userID);
+        free(newuser->cpf);
+        free(newuser->email);
+        free(newuser->birthday);
+        free(newuser->name);
+        free(newuser);
+        return NULL;
+    }
+    strcpy(newuser->password, password);
+
+    //atribui valores inteiros e floats diretamente
+    newuser->phone = phone;
+    newuser->income = income;
+    newuser->balance = balance;
+
+    //inicializa o ponteiro next como NULL para garantir o funcionamento da lista encadeada
+    newuser->next = NULL;
+
+    //retorna os dados do novo usuário criado
+    return newuser;
+}
+
