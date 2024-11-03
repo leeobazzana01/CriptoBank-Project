@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <string.h> //para usar as comparações de strcmp
+#include <unistd.h> //para usar a funcao sleep e melhorar a experiência do usuário
+
+//ESTRUTURAS DE DADOS
+typedef struct personaldata{        //struct que irá armazenar os dados do usuário e também irá estruturar a fila que organizará os usuários
+    char *name;                     //usará ponteiro para alocar memória dinãmicamente para a string          
+    char * birthday;                //usará ponteiro para alocar memória dinãmicamente para a string
+    int phone;                      //apenas uma variável inteira já é suficiente para armazenar os dados de telefone
+    char *email;                    //usará ponteiro para alocar memória dinãmicamente para a string
+    char *cpf;                      //é melhor usar um ponteiro para uma string que apenas uma variável inteira pois isso poderia causar problemas com 0 a esquerda
+    char *userID;                   //usará ponteiro para alocar memória dinãmicamente para a string
+    char *password;                 //usará ponteiro para alocar memória dinãmicamente para a string
+    float income;                   //variável do tipo float é suficiente para armazenar a renda de algúem 
+    float balance;                  //variável do tipo float armazena o saldo bancário de alguém 
+    struct personaldata *next;      //variável do tipo struct personaldata com um ponteiro que irá apontar ao próximo nó da fila que armazena os usuários
+} personaldata;
+
+typedef struct criptocoin{          //struct que irá armazenar os dados de cadastro de uma criptomoeda
+    char *criptoname;               //ponteiro que irá apontar para a string com o nome da criptomoeda     
+    char abreviation[4];            //variável alocada fixamente para impedir o usuário de digitar o quando quiser, limitando a abreviação apenas a 3 caracteres  
+    char *tecnologytype;            //ponteiro que irá apontar para a string que armazena o tipo de tecnologia da cripto em questão
+    int availableunits;             //armazena a quantidade de unidades da moeda presentes no mercado
+    float marketvalue;              //armazena o valor de mercado da criptomoeda  
+}Criptocoin;
+
+//FUNÇÕES DO CÓDIGO
+//função cria usuário do tipo personaldata (estrutura de dado dos usuários) e o ponteiro que aponta para os parâmetros (diversos dados do usuário)
+personaldata *createuser(char *name, char *birthday, int phone, char *email, char *cpf, char *userID, char *password, float income, float balance); 
+//função que adiciona usuário à lista encadeada, o ponteiro de ponteiro **head aponta para o primeiro usuário da lista, o ponteiro *createuser aponta para a função createuser
+void adduser(personaldata **head, personaldata *createuser);
+//função que irá realizar a busca do usuário usando um ponteiro que aponta para o primeiro usuário da fila, e depois um outro ponteiro que apontará para o cpf, o meio de busca
+personaldata searchuser(personaldata *head, char *cpf);
+//função para remover o usuário, passando como parâmetro o **head que aponta para o primeiro usuário da fila, e o ponteiro *cpf para remover o usuário pelo cpf 
+void removeuser(personaldata **head, char *cpf);
+//função que irá listar todos os usuários da lista passando como parâmetro apenas o **head
+void showusers(personaldata **head);
+
+int main(){    
+
+return 0;
+}
