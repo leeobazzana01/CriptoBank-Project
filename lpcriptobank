@@ -33,7 +33,7 @@ void adduser(personaldata **head, personaldata *createuser);
 //função que irá realizar a busca do usuário usando um ponteiro que aponta para o primeiro usuário da fila, e depois um outro ponteiro que apontará para o cpf, o meio de busca
 personaldata searchuser(personaldata *head, char *cpf);
 //função para remover o usuário, passando como parâmetro o **head que aponta para o primeiro usuário da fila, e o ponteiro *cpf para remover o usuário pelo cpf 
-void removeuser(personaldata **head, char *cpf);
+void removeuser(personaldata *head, char *cpf);
 //função que irá listar todos os usuários da lista passando como parâmetro apenas o **head
 void showusers(personaldata **head);
 
@@ -42,6 +42,7 @@ int main(){
 return 0;
 }
 
+//ESCOPO DAS FUNÇÕES
 //função que cria um novo usuário
 personaldata *createuser(char *name, char *birthday, int phone, char *email, char *cpf, char *userID, char *password, float income, float balance) {
     //aloca memória para um novo usuário
@@ -131,3 +132,21 @@ personaldata *createuser(char *name, char *birthday, int phone, char *email, cha
     return newuser;
 }
 
+void adduser(personaldata **head, personaldata *createuser)
+{
+    if(head == NULL || createuser == NULL) //condição que verifica se os ponteiros head e create user são válidos
+    {
+        return;
+    }
+    if(*head == NULL)                   //verifica se a lista está vazia(ou seja, o head==null)
+    {
+        *head = createuser;             //se estiver vaziao o novo usuário criado passa a ser o nó head
+        return;
+    }
+    personaldata *current = *head;     //caso a lista não steja vazia, percorre o final da lista no até o último nó e adiciona um novo nó(usuário)
+    while(current->next != NULL)
+    {
+        current=current->next;       //move o ponteiro current para o nó final da lista
+    }
+    current->next=createuser;       //o novo usuário é adicionado ao final da filha
+}
