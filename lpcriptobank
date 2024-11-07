@@ -31,9 +31,9 @@ personaldata *createuser(char *name, char *birthday, int phone, char *email, cha
 //função que adiciona usuário à lista encadeada, o ponteiro de ponteiro **head aponta para o primeiro usuário da lista, o ponteiro *createuser aponta para a função createuser
 void adduser(personaldata **head, personaldata *createuser);
 //função que irá realizar a busca do usuário usando um ponteiro que aponta para o primeiro usuário da fila, e depois um outro ponteiro que apontará para o cpf, o meio de busca
-personaldata searchuser(personaldata *head, char *cpf);
+personaldata *searchuser(personaldata *head, char *cpf);
 //função para remover o usuário, passando como parâmetro o **head que aponta para o primeiro usuário da fila, e o ponteiro *cpf para remover o usuário pelo cpf 
-void removeuser(personaldata *head, char *cpf);
+void removeuser(personaldata **head, char *cpf);
 //função que irá listar todos os usuários da lista passando como parâmetro apenas o **head
 void showusers(personaldata **head);
 
@@ -149,4 +149,87 @@ void adduser(personaldata **head, personaldata *createuser)
         current=current->next;       //move o ponteiro current para o nó final da lista
     }
     current->next=createuser;       //o novo usuário é adicionado ao final da filha
+}
+
+//função que percorre a lista e procura o usuário
+personaldata *searchuser(personaldata *head, char *cpf) {
+    // ponteiro que percorre a lista
+    personaldata *current = head;
+
+    //percorre até encontrar o usuário ou chegar ao final
+    while (current != NULL) {
+        //compara o CPF do nó com o CPF inserido
+        if (strcmp(current->cpf, cpf) == 0) {  //se o cpf for encontrato
+            return current;  //retorna um ponteiro para o usuário encontrado
+        }
+        current = current->next;  //move para o próximo nó
+    }
+
+    //caso não haja usuário com tal cpf, retorna NULL
+    return NULL;
+}
+
+//função que remove nós da lista pelo cpf 
+void removeuser(personaldata **head, char *cpf) {
+    //ponteiros para percorrer a lista e realizar a exclusão
+    personaldata *current = *head;
+    personaldata *previous = NULL;
+
+    //percorre a lista
+    while (current != NULL) {
+        //verifica se o CPF do usuário atual é o CPF procurado
+        if (strcmp(current->cpf, cpf) == 0) {
+            //caso seja o primeiro nó a ser removido
+            if (previous == NULL) {
+                *head = current->next; //atualiza o head
+            } else {
+                previous->next = current->next;//exclui o nó atual
+            }
+
+            //liberação da memória do nó removido
+            free(current->name);
+            free(current->birthday);
+            free(current->email);
+            free(current->cpf);
+            free(current->userID);
+            free(current->password);
+            free(current);
+
+            printf("User removed with sucess\n");   //imprime mensagme de sucesso ao remover o usuário
+            return;
+        }
+
+        //atualiza os ponteiros e continua percorrendo a lista
+        previous = current;
+        current = current->next;
+    }
+
+    // Se não encontrar o usuário com o CPF fornecido
+    printf("User with the %s does not exist\n", cpf);
+}
+
+//função que percorre a lista e mostra informações de todos usuários 
+void showusers(personaldata **head) {
+    if (head == NULL || *head == NULL) { //confere se a lista é vazia
+        printf("No users found in the list.\n");
+        return;
+    }
+
+    personaldata *current = *head; //ponteiro que percorre a lista
+    printf("Displaying all registered users:\n\n");
+    
+    while (current != NULL) {
+        printf("Name: %s\n", current->name);
+        printf("Birthday: %s\n", current->birthday);
+        printf("Phone: %d\n", current->phone);
+        printf("Email: %s\n", current->email);
+        printf("CPF: %s\n", current->cpf);
+        printf("User ID: %s\n", current->userID);
+        printf("Password: %s\n", current->password);
+        printf("Income: $%.2f\n", current->income);
+        printf("Balance: $%.2f\n", current->balance);
+        printf("---------------------------\n");
+        
+        current = current->next; //move até o próximo usuário na lista
+    }
 }
