@@ -25,7 +25,14 @@ typedef struct criptocoin{          //struct que irá armazenar os dados de cada
     float marketvalue;              //armazena o valor de mercado da criptomoeda  
 }Criptocoin;
 
-//FUNÇÕES DO CÓDIGO
+typedef struct node{                //struct do nó que irá organizar as criptomoedas em uma árvore binária baseado no valor de mercado das criptomoedas, de forma que o bitcoin seja sempre a raiz, por ser o mais valorizado em mercado
+    Criptocoin *data;               //dados das cripto
+    struct node *left;              //filho da esquerda
+    struct node *right;             //filho da direita
+}Node; 
+
+
+//FUNÇÕES DO CÓDIGO QUE IRÃO MANIPULAR A LISTA QUE ORGANIZA OS USUÁRIOS
 //função cria usuário do tipo personaldata (estrutura de dado dos usuários) e o ponteiro que aponta para os parâmetros (diversos dados do usuário)
 personaldata *createuser(char *name, char *birthday, int phone, char *email, char *cpf, char *userID, char *password, float income, float balance); 
 //função que adiciona usuário à lista encadeada, o ponteiro de ponteiro **head aponta para o primeiro usuário da lista, o ponteiro *createuser aponta para a função createuser
@@ -35,7 +42,21 @@ personaldata *searchuser(personaldata *head, char *cpf);
 //função para remover o usuário, passando como parâmetro o **head que aponta para o primeiro usuário da fila, e o ponteiro *cpf para remover o usuário pelo cpf 
 void removeuser(personaldata **head, char *cpf);
 //função que irá listar todos os usuários da lista passando como parâmetro apenas o **head
-void showusers(personaldata **head);
+void showusers(personaldata *head);
+//função que irá fazer a leiberação de memória da lista por completo
+void freememory(personaldata *head);
+
+//FUNÇÕES DO CÓDIGO PARA MANIPULAR A ABB QUE ORGANIZA AS CRIPTOMOEDAS
+//função responsável por criar um novo nó com uma criptomoeda
+Node *createnode(Criptocoin *cripto);
+//função para liberar a memória alocada para a árvore 
+void freethree(Node *root);
+//função que realiza a busca da moeda na árvore 
+Criptocoin *search(Node *root, float value);
+//função que cria uma nova criptomoeda e preenche os dados 
+Criptocoin *createcripto(const char *name, const char *abreviation, const char *tecnologytype, int *availableunits, float value);
+//função para exibir as moedas em ordem crescente de valor de mercado 
+void inorder(Node *root);
 
 int main(){    
 
@@ -209,13 +230,13 @@ void removeuser(personaldata **head, char *cpf) {
 }
 
 //função que percorre a lista e mostra informações de todos usuários 
-void showusers(personaldata **head) {
-    if (head == NULL || *head == NULL) { //confere se a lista é vazia
+void showusers(personaldata *head) {
+    if (head == NULL) { //confere se a lista é vazia
         printf("No users found in the list.\n");
         return;
     }
 
-    personaldata *current = *head; //ponteiro que percorre a lista
+    personaldata *current = head; //ponteiro que percorre a lista
     printf("Displaying all registered users:\n\n");
     
     while (current != NULL) {
@@ -232,4 +253,106 @@ void showusers(personaldata **head) {
         
         current = current->next; //move até o próximo usuário na lista
     }
+}
+void freememory(personaldata *head){
+    personaldata *current = head;
+    while (current != NULL) {
+        personaldata *temp = current;
+        current = current->next;
+        
+        //liberação de memoria para os campos 
+        free(temp->name);
+        free(temp->birthday);
+        free(temp->email);
+        free(temp->cpf);
+        free(temp->userID);
+        free(temp->password);
+        
+        //liberação do próprio nó
+        free(temp);
+    }
+}
+
+
+//FUNÇÕES QUE MANIPULAM A ÁRVORE NA ORGANIZAÇÃO DAS CRIPTOMOEDAS
+//cria um novo nó com uma criptomoeda
+Node* createNode(Criptocoin *crypto) {
+    Node *newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+    newNode->data = crypto;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+//insere uma moeda na árvore binaria de busca com base no valor de mercado
+void insert(Node **root, Criptocoin *crypto) {
+    if (*root == NULL) {
+        *root = createNode(crypto);
+        return;
+    }
+    //compara pelo valor de mercado das criptomoedas 
+    if (crypto->marketvalue > (*root)->data->marketvalue) {
+        insert(&(*root)->right, crypto); //insere a direita
+    } else {
+        insert(&(*root)->left, crypto);  //insere a esquerda
+    }
+}
+
+//busca uma criptomoeda na árvore binaria 
+Criptocoin* search(Node *root, float value) {
+    if (root == NULL) {
+        return NULL;  
+    }
+    if (value == root->data->marketvalue) {
+        return root->data;  // Encontrado
+    } else if (value > root->data->marketvalue) {
+        return search(root->right, value);  //busca a direita por valores maiores que a raíz
+    } else {
+        return search(root->left, value);  //busca a esquerda por valores menores que a raíz
+    }
+}
+
+//exibie as criptomoedas com base no valor de mercado
+void inorder(Node *root) {
+    if (root != NULL) {
+        inorder(root->left);  // Visitar a subárvore esquerda
+        printf("Cryptocurrency Name: %s\n", root->data->criptoname);
+        printf("Abbreviation: %s\n", root->data->abreviation);
+        printf("Technology: %s\n", root->data->tecnologytype);
+        printf("Available Units: %d\n", root->data->availableunits);
+        printf("Market Value: %.2f\n", root->data->marketvalue);
+        printf("---------------------------\n");
+        inorder(root->right);  //aponta para a subárvore direita
+    }
+}
+
+//libera a memória de uma árvore
+void freeTree(Node *root) {
+    if (root != NULL) {
+        freeTree(root->left);
+        freeTree(root->right);
+        free(root->data->criptoname);  //libera o nome
+        free(root->data->tecnologytype);  //libera o tipo de tecnologia
+        free(root->data);  //libera a struct Criptocoin
+        free(root);  //liberaa o nó
+    }
+}
+
+//cria e preenche uma criptomoeda
+Criptocoin* createCriptocoin(const char *name, const char *abbreviation, const char *techType, int units, float value) {
+    Criptocoin *crypto = (Criptocoin*)malloc(sizeof(Criptocoin));
+    if (crypto == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+    crypto->criptoname = strdup(name);  //aloca memória e copia o nome
+    strncpy(crypto->abreviation, abbreviation, 3);
+    crypto->abreviation[3] = '\0';  //garante que a abreviação tem no máximo 3 caracteres
+    crypto->tecnologytype = strdup(techType);  //aloca memória e copia o tipo de tecnologia
+    crypto->availableunits = units;
+    crypto->marketvalue = value;
+    return crypto;
 }
