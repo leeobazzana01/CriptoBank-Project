@@ -58,9 +58,104 @@ Criptocoin *createcripto(const char *name, const char *abreviation, const char *
 //função para exibir as moedas em ordem crescente de valor de mercado 
 void inorder(Node *root);
 
-int main(){    
+int main() {
+    personaldata *head = NULL;    //lista de usuários
+    int loginoption;              //variável que armazena a opção escolhida na tela inicial
+    int running = 1;              //controla o loop para que, quando uma operação não for bem sucedida, o usuário retorne ao menu de opções
+    personaldata *person = NULL;  //armazena o usuário que está logado
 
-return 0;
+    while(running){
+    printf("============== LP CRIPTOBANK ==============\n");
+    printf("===========================================\n\n");
+    sleep(2);
+
+    //menu com opções
+    printf(">Choose your option: \n");
+    sleep(1);
+    printf("1. Login\n");
+    sleep(1);
+    printf("2. Create new account\n");
+    sleep(1);
+    printf("3. Close application\n");
+    sleep(1);
+    scanf("%d", &loginoption);
+
+    switch (loginoption) {
+        case 1:
+            printf(">Cpf: ");
+            char cpf[12], password[20];
+            scanf("%s", cpf);
+            printf("\n>Password: ");
+            scanf("%s", password);
+
+            //busca o usuário pelo CPF
+            person = searchuser(head, cpf); 
+            if (person != NULL && strcmp(person->password, password) == 0) {  //compara a senha inserida com a senha criada para o nó do usuário em questão
+                printf(">Login successful!\n");
+                //devemos prosseguir com a aplicação para a próxima tela
+            } else {
+                printf(">Invalid CPF or password. Please try again.\n");
+                //da opção de tentar novamente
+            }
+            break;
+
+        case 2:
+            printf(">Creating a new user\n");
+            sleep(1);
+            personaldata *newPerson = (personaldata *)malloc(sizeof(personaldata)); //alocação de memória para o novo usuário
+
+            printf(">Full name: ");
+            getchar();                 
+            fgets(newPerson->name, sizeof(newPerson->name), stdin);
+
+            printf("\nUser ID: ");
+            scanf("%s", newPerson->userID);
+
+            printf("\n>CPF: ");
+            scanf("%s", newPerson->cpf); 
+
+            printf("\n>Birthday (dd/mm/yyyy): ");
+            scanf("%s", newPerson->birthday);
+
+            printf("\n>Phone Number: ");
+            scanf("%d", &newPerson->phone);
+
+            printf("\n>Email: ");
+            scanf("%s", newPerson->email);
+
+            printf("\nAnnual Income (in USD): ");
+            scanf("%f", &newPerson->income);
+
+            printf("\n>Password: ");
+            scanf("%s", newPerson->password);
+
+            newPerson->balance = 0;           //inicializa o saldo do novo usuário como zero pois ainda não realizou nenhum depósito
+
+            //confere se o CPF não está cadastrado
+            if (searchuser(head, newPerson->cpf) != NULL) {
+                printf("CPF already in use. Please choose another one.\n");
+                free(newPerson);  //libera a memória para caso o CPF já exista
+            } 
+            else {
+                adduser(&head, newPerson);  //adiciona a lista
+                printf("Account created successfully!\n");
+            }
+            break;
+
+        case 3:
+            printf("Closing application...\n");
+            sleep(2);
+            freememory(head);
+            running = 0;                //sai do loop do menu principal 
+            break;
+
+        default:
+            printf("Invalid option. Please choose a valid operation.\n");
+            break;
+    }
+    }
+
+    return 0;
 }
 
 //ESCOPO DAS FUNÇÕES
